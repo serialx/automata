@@ -1,0 +1,17 @@
+(
+# States
+{'q1', 'q2', 'q3', 'q4'},
+# Alphabet
+{'abcde'},
+# Transition Function
+{
+    (('q1', 'a'), 'q2'),
+    (('q2', 'b'), 'q3'),
+    (('q3', 'a'), 'q2'),
+    (('q3', 'c'), 'q4'),
+},
+# Start State
+'q1',
+# Accept States
+{'q4'}
+)
