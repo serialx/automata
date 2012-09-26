@@ -36,7 +36,7 @@ Usage
 참고: Python 2.7 이상 필요
  1. 아래와 같이 실행하면 로드된 DFA를 출력한다.
  2. 이후 문자열을 입력하면 membership test를 진행하여 True혹은 False를 출력한다.
- 3. Enter혹은 EOF(^D)를 입력하면 프로그램이 종료된다.
+ 3. EOF(^D)를 입력하면 프로그램이 종료된다.
 
 ```
 $ python dfa.py

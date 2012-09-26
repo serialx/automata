@@ -123,6 +123,5 @@ if __name__ == '__main__':
     print(d)
     while True:
         l = sys.stdin.readline().strip()
-        if (not l): break
         print('"{0}" in DFA = {1}'.format(l, l in d))
 
