@@ -1,0 +1,28 @@
+(
+# States
+{'q1', 'q2', 'q3'},
+# Alphabet
+{'01'},
+# Output Alphabet
+{func_0, func_1},
+# Transition Function
+{
+    (('q1', '0'), 'q2'),
+    (('q1', '1'), 'q3'),
+    (('q2', '0'), 'q2'),
+    (('q2', '1'), 'q3'),
+    (('q3', '0'), 'q2'),
+    (('q3', '1'), 'q3'),
+},
+# Output Function
+{
+    (('q1', '0'), func_0),
+    (('q1', '1'), func_0),
+    (('q2', '0'), func_0),
+    (('q2', '1'), func_1),
+    (('q3', '0'), func_1),
+    (('q3', '1'), func_0),
+},
+# Start State
+'q1',
+)

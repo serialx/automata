@@ -1,0 +1,4 @@
+{
+'func_0': lambda: print('func_0: bit not changed'),
+'func_1': lambda: print('func_1: bit changed!!!'),
+}
