@@ -12,6 +12,82 @@ Input Method
 ------------
 이전 프로젝트와 마찬가지로 input_mealy_machine.txt와 input_mealy_machine_funcs.txt를 eval함수를 사용하여 로드하도록 하였습니다. Output Alphabet이 function이므로 labmda expression을 로드하도록 하였으며, Output Alphabet과 Output Function에서 모두 이 함수들이 사용되므로 재사용성을 위해 input_mealy_machine_funcs.txt로 별도로 분리하여 Output Alphabet을 정의할 수 있도록 하였습니다.
 
+Exmaples
+--------
+현재 기본으로 입력되어 있는 Mealy Machine은 입력된 bit가 뒤집히는 것을 판별하는 머신입니다. 001100을 입력하여 테스트하면 다음과 같이 나옵니다:
+
+### Output Alphabet (function blocks)
+```
+$ cat input_mealy_machine_funcs.txt 
+{
+'func_0': lambda: print('func_0: bit not changed'),
+'func_1': lambda: print('func_1: bit changed!!!'),
+}
+```
+
+### Mealy Machine Input
+```
+$ cat input_mealy_machine.txt 
+(
+# States
+{'q1', 'q2', 'q3'},
+# Alphabet
+{'01'},
+# Output Alphabet
+{func_0, func_1},
+# Transition Function
+{
+    (('q1', '0'), 'q2'),
+    (('q1', '1'), 'q3'),
+    (('q2', '0'), 'q2'),
+    (('q2', '1'), 'q3'),
+    (('q3', '0'), 'q2'),
+    (('q3', '1'), 'q3'),
+},
+# Output Function
+{
+    (('q1', '0'), func_0),
+    (('q1', '1'), func_0),
+    (('q2', '0'), func_0),
+    (('q2', '1'), func_1),
+    (('q3', '0'), func_1),
+    (('q3', '1'), func_0),
+},
+# Start State
+'q1',
+)
+```
+
+### Test Output of '001100'
+```
+$ python mealy_machine.py 
+Loaded Mealy Machine: MealyMachine(states=set(['q1', 'q3', 'q2']), 
+    alphabet=set(['01']), 
+    output_alphabet=set([<function <lambda> at 0x105013f50>, <function <lambda> at 0x105013ed8>]), 
+    transition_function=set([(('q3', '1'), 'q3'), (('q1', '1'), 'q3'), (('q2', '1'), 'q3'), (('q3', '0'), 'q2'), (('q1', '0'), 'q2'), (('q2', '0'), 'q2')]), 
+    output_function=set([(('q2', '1'), <function <lambda> at 0x105013f50>), (('q3', '0'), <function <lambda> at 0x105013f50>), (('q1', '1'), <function <lambda> at 0x105013ed8>), (('q3', '1'), <function <lambda> at 0x105013ed8>), (('q1', '0'), <function <lambda> at 0x105013ed8>), (('q2', '0'), <function <lambda> at 0x105013ed8>)]), 
+    start_state=q1
+Simulating output...
+Output functions possible: (q1, 0) --> [<function <lambda> at 0x105013ed8>]
+func_0: bit not changed
+Transition functions possible: (q1, 0) --> ['q2']
+Output functions possible: (q2, 0) --> [<function <lambda> at 0x105013ed8>]
+func_0: bit not changed
+Transition functions possible: (q2, 0) --> ['q2']
+Output functions possible: (q2, 1) --> [<function <lambda> at 0x105013f50>]
+func_1: bit changed!!!
+Transition functions possible: (q2, 1) --> ['q3']
+Output functions possible: (q3, 1) --> [<function <lambda> at 0x105013ed8>]
+func_0: bit not changed
+Transition functions possible: (q3, 1) --> ['q3']
+Output functions possible: (q3, 0) --> [<function <lambda> at 0x105013f50>]
+func_1: bit changed!!!
+Transition functions possible: (q3, 0) --> ['q2']
+Output functions possible: (q2, 0) --> [<function <lambda> at 0x105013ed8>]
+func_0: bit not changed
+Transition functions possible: (q2, 0) --> ['q2']
+```
+
 To-do
 -----
  * Complexity를 감소시키는 최적화
