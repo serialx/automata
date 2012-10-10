@@ -4,6 +4,12 @@ Automata Project 1-2
 Name: 홍성진 (20060735, serialx@serialx.net)
 
 
+Specification
+-------------
+ * Language: Python (2.7)
+ * Environment: Linux (compatible terminal emulator with UTF-8 settings), Python 2.7
+
+
 Input
 -----
 
