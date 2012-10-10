@@ -1,4 +1,4 @@
-Automata Project 1-1
+Automata Project 1-2
 ====================
 
 Name: 홍성진 (20060735, serialx@serialx.net)
@@ -7,26 +7,46 @@ Name: 홍성진 (20060735, serialx@serialx.net)
 Input
 -----
 
-다음과 같이 input_dfa.txt에 5-tuple DFA를 입력한다:
+다음과 같이 input_mealy_machine.txt에 6-tuple Mealy Machine을 입력한다:
 
 ``` python
 (
 # States
-{'q1', 'q2', 'q3', 'q4'},
+{'q1', 'q2', 'q3'},
 # Alphabet
-{'abcde'},
+{'01'},
+# Output Alphabet
+{func_0, func_1},
 # Transition Function
 {
-    (('q1', 'a'), 'q2'),
-    (('q2', 'b'), 'q3'),
-    (('q3', 'a'), 'q2'),
-    (('q3', 'c'), 'q4'),
+    (('q1', '0'), 'q2'),
+    (('q1', '1'), 'q3'),
+    (('q2', '0'), 'q2'),
+    (('q2', '1'), 'q3'),
+    (('q3', '0'), 'q2'),
+    (('q3', '1'), 'q3'),
+},
+# Output Function
+{
+    (('q1', '0'), func_0),
+    (('q1', '1'), func_0),
+    (('q2', '0'), func_0),
+    (('q2', '1'), func_1),
+    (('q3', '0'), func_1),
+    (('q3', '1'), func_0),
 },
 # Start State
 'q1',
-# Accept States
-{'q4'}
 )
+```
+
+다음과 같이 input_mealy_machine.txt에서 사용하는 함수를 input_mealy_machine_funcs.txt에 입력한다:
+
+``` python
+{
+'func_0': lambda: print('func_0: bit not changed'),
+'func_1': lambda: print('func_1: bit changed!!!'),
+}
 ```
 
 
@@ -34,37 +54,32 @@ Usage
 -----
 
 참고: Python 2.7 이상 필요
- 1. 아래와 같이 실행하면 로드된 DFA를 출력한다.
- 2. 이후 문자열을 입력하면 membership test를 진행하여 True혹은 False를 출력한다.
+ 1. 아래와 같이 실행하면 로드된 Mealy Machine을 출력한다.
+ 2. 이후 문자를 입력하면 Mealy Machine이 작동하고 단계별로 Output Alphabet인 프로그램 블록이 실행된다.
  3. EOF(^D)를 입력하면 프로그램이 종료된다.
 
 ```
-$ python dfa.py
-DFA(states=set(['q1', 'q3', 'q2', 'q4']), 
-    alphabet=set(['abcde']), 
-    transition_function=set([(('q3', 'a'), 'q2'), (('q3', 'c'), 'q4'), (('q2', 'b'), 'q3'), (('q1', 'a'), 'q2')]), 
-    start_state=q1, 
-    accept_state=set(['q4']))
-abcd
-(q1, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, c) --> ['q4']
-(q4, d) --> []
-"abcd" in DFA = False
-abc
-(q1, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, c) --> ['q4']
-"abc" in DFA = True
-ababababc
-(q1, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, a) --> ['q2']
-(q2, b) --> ['q3']
-(q3, c) --> ['q4']
-"ababababc" in DFA = True
+$ python mealy_machine.py 
+Loaded Mealy Machine: MealyMachine(states=set(['q1', 'q3', 'q2']), 
+    alphabet=set(['01']), 
+    output_alphabet=set([<function <lambda> at 0x100892f50>, <function <lambda> at 0x100892ed8>]), 
+    transition_function=set([(('q3', '1'), 'q3'), (('q1', '1'), 'q3'), (('q2', '1'), 'q3'), (('q3', '0'), 'q2'), (('q1', '0'), 'q2'), (('q2', '0'), 'q2')]), 
+    output_function=set([(('q3', '0'), <function <lambda> at 0x100892f50>), (('q1', '1'), <function <lambda> at 0x100892ed8>), (('q3', '1'), <function <lambda> at 0x100892ed8>), (('q1', '0'), <function <lambda> at 0x100892ed8>), (('q2', '1'), <function <lambda> at 0x100892f50>), (('q2', '0'), <function <lambda> at 0x100892ed8>)]), 
+    start_state=q1
+Simulating output...
+Output functions possible: (q1, 0) --> [<function <lambda> at 0x100892ed8>]
+func_0: bit not changed
+Transition functions possible: (q1, 0) --> ['q2']
+Output functions possible: (q2, 0) --> [<function <lambda> at 0x100892ed8>]
+func_0: bit not changed
+Transition functions possible: (q2, 0) --> ['q2']
+Output functions possible: (q2, 1) --> [<function <lambda> at 0x100892f50>]
+func_1: bit changed!!!
+Transition functions possible: (q2, 1) --> ['q3']
+Output functions possible: (q3, 1) --> [<function <lambda> at 0x100892ed8>]
+func_0: bit not changed
+Transition functions possible: (q3, 1) --> ['q3']
+Output functions possible: (q3, 0) --> [<function <lambda> at 0x100892f50>]
+func_1: bit changed!!!
+Transition functions possible: (q3, 0) --> ['q2']
 ```

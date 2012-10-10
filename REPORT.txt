@@ -1,4 +1,4 @@
-Automata Project 1-1: Report (결과보고서)
+Automata Project 1-2: Report (결과보고서)
 =========================================
 
 Name: 홍성진 (20060735, serialx@serialx.net)
@@ -6,19 +6,18 @@ Name: 홍성진 (20060735, serialx@serialx.net)
 
 Complexity
 ----------
-Input length N, Transition function size T에 대하여 Worst-case Complexity는 O(N*T) 입니다. Transition Function에 대하여 Hash Table을 사용하면 O(N)에 바운드 시킬 수 있을 것으로 보입니다. 하지만 코드의 간결성과 가독성을 위하여 최소한의 코드로 작성하였습니다.
+Input length N, Transition function size T (~= Output function size) 에 대하여 Worst-case Complexity는 O(N*T) 입니다. Transition Function에 대하여 Hash Table을 사용하면 O(N)에 바운드 시킬 수 있을 것으로 보입니다. 하지만 코드의 간결성과 가독성을 위하여 최소한의 코드로 작성하였습니다.
 
 Input Method
 ------------
-Functional language에서 많이 사용하는 스타일을 빌려 input_dfa.txt를 eval함수를 사용하여 로드하도록 하였습니다. Set 문법인 {a, b, c, ...} 를 사용하기 위하여 Python 2.7을 최소 요구사항으로 체택하였는데, 프로젝트 입력의 간결성을 위한 선택이었습니다.
+이전 프로젝트와 마찬가지로 input_mealy_machine.txt와 input_mealy_machine_funcs.txt를 eval함수를 사용하여 로드하도록 하였습니다. Output Alphabet이 function이므로 labmda expression을 로드하도록 하였으며, Output Alphabet과 Output Function에서 모두 이 함수들이 사용되므로 재사용성을 위해 input_mealy_machine_funcs.txt로 별도로 분리하여 Output Alphabet을 정의할 수 있도록 하였습니다.
 
 To-do
 -----
  * Complexity를 감소시키는 최적화
- * NFA to DFA 변환 코드 작성해보기
 
 Retrospect
 ----------
-전산에서 이론적인 부분이 항상 약했는데 수업과 프로젝트를 하면서 많은것을 배우고 있습니다. 다음 프로젝트도 기대됩니다.
+DFA에서 기본적으로 알고리즘을 가져와 Mealy Machine을 구현하였습니다. Mealy Machine을 최대한 pythonic한 방법으로 구현할 수 있도록 하는 한편 수학적으로 비슷한 방식으로 사용할 수 있도록 노력하였는데, 객체 자체를 호출할 수 있도록(callable) 만들었습니다. 또한 바로 Output Alphabet List를 반환하지 않고 lazy하게 Output Alphabet을 하나씩 evaluation하도록 하여 사용자에 키보드 입력에 따라 동적으로 시뮬레이션이 가능하도록 API를 설계하였습니다.
 
 조교님들 수고 많으십니다. 감사합니다.
