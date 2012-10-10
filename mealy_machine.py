@@ -20,6 +20,8 @@
 from __future__ import print_function
 import sys
 
+import getch
+
 
 class MealyMachine(object):
     """Mealy Machine implementation with callable output alphabet"""
@@ -47,7 +49,7 @@ class MealyMachine(object):
     def __str__(self):
         return self.__unicode__().encode('utf8')
 
-    def output(self, string, verbose=True):
+    def __call__(self, string, verbose=True):
         output = []
         state = self.start_state
         for c in string:
@@ -59,20 +61,19 @@ class MealyMachine(object):
             assert len(output_possible) == 1, 'More than one output function exists'
             output_char = output_possible[0]
             assert(output_char in self.output_alphabet)
-            output.append(output_char)
+            yield output_char
             transitions_possible = [dest for ((start, char), dest) in
                     self.transition_function if start == state and char == c]
             if (verbose):
                 print("Transition functions possible: ({0}, {1}) --> {2}".format(state, c, transitions_possible))
             if (len(transitions_possible) == 0):
-                return False
+                return
             assert len(transitions_possible) == 1, ('Nondeterministic '
                     'behaviour not allowed in DFA')
             state = transitions_possible[0]
-        return output
 
     def simulate(self, string):
-        funcs = self.output(string, verbose=False)
+        funcs = self.__call__(string, verbose=False)
         for f in funcs:
             assert callable(f)
             f()
@@ -81,8 +82,9 @@ class MealyMachine(object):
 def test_simple_mealy_machine():
     states = {'q1', 'q2', 'q3', 'q4'}
     alphabet = {'abcde'}
-    func_a = lambda: ('a', print('func_a: executing'))[0]
-    func_b = lambda: ('b', print('func_b: executing'))[0]
+    begin = lambda x: x[-1]
+    func_a = lambda: print('func_a: executing')
+    func_b = lambda: print('func_b: executing')
     output_alphabet = {func_a, func_b}
     transition_function = {
             (('q1', 'a'), 'q2'),
@@ -96,21 +98,32 @@ def test_simple_mealy_machine():
             }
     start_state = 'q1'
     d = MealyMachine(states, alphabet, output_alphabet, transition_function, output_function, start_state)
-    ret = d.output('abc')
-    print('Output of Mealy Machine = {0}'.format(ret))
+    ret = d('abc')
+    print('Output of Mealy Machine = {0}'.format(list(ret)))
     print('Simulating output...')
-    d.simulate('abc')
+    for f in ret:
+        f()
+
+
+def input_generator():
+    while True:
+        c = getch.getch()
+        if not c: return
+        yield c
+
+
+def simulate(mealy_machine):
+    print('Loaded Mealy Machine:', mealy_machine)
+    while True:
+        l = input_generator()
+        print('Simulating output...')
+        for f in d(l):
+            f()
 
 
 if __name__ == '__main__':
     #test_simple_mealy_machine()
     funcs = eval(open('input_mealy_machine_funcs.txt').read())
-    input = eval(open('input_mealy_machine.txt').read(), funcs)
-    d = MealyMachine(*input)
-    print(d)
-    while True:
-        l = sys.stdin.readline().strip()
-        ret = d.output(l)
-        print('Output of Mealy Machine = {0}'.format(ret))
-        print('Simulating output...')
-        d.simulate(l)
+    input_params = eval(open('input_mealy_machine.txt').read(), funcs)
+    d = MealyMachine(*input_params)
+    simulate(d)
