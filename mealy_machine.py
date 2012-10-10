@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   Deterministic Finite Automation implementation.
+   Mealy Machine implementation.
 """
 
 from __future__ import print_function
@@ -108,17 +108,17 @@ def test_simple_mealy_machine():
 def input_generator():
     while True:
         c = getch.getch()
+        if ord(c) == 4: return  # EOF
         if not c: return
         yield c
 
 
 def simulate(mealy_machine):
     print('Loaded Mealy Machine:', mealy_machine)
-    while True:
-        l = input_generator()
-        print('Simulating output...')
-        for f in d(l):
-            f()
+    l = input_generator()
+    print('Simulating output...')
+    for f in d(l):
+        f()
 
 
 if __name__ == '__main__':
