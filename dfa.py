@@ -18,6 +18,7 @@
 """
 
 import sys
+from collections import defaultdict
 
 
 class DFA(object):
@@ -34,6 +35,10 @@ class DFA(object):
         assert start_state in states
         self.accept_states = set(accept_states)
         assert self.states.issuperset(accept_states)
+        trans_dict = defaultdict(lambda: defaultdict(set))
+        for ((q1, c), r2) in self.transition_function:
+            trans_dict[q1][c].add(r2)
+        self.trans_dict = trans_dict
 
     def __unicode__(self):
         format_str = (u"DFA(states={0}, \n    alphabet={1}, \n    "
@@ -45,20 +50,21 @@ class DFA(object):
     def __str__(self):
         return self.__unicode__().encode('utf8')
 
+    def transitions(self, state, c):
+        return self.trans_dict[state][c]
+
     def __contains__(self, string):
         """Usage: "asdf" in d"""
         state = self.start_state
         for c in string:
             # For all transitions possible with 'c' and 'state'
-            # TODO(serialx): Use hash table to improve performance.
-            transitions_possible = [dest for ((start, char), dest) in
-                    self.transition_function if start == state and char == c]
+            transitions_possible = self.transitions(state, c)
             print("({0}, {1}) --> {2}".format(state, c, transitions_possible))
             if (len(transitions_possible) == 0):
                 return False
             assert len(transitions_possible) == 1, ('Nondeterministic '
                     'behaviour not allowed in DFA')
-            state = transitions_possible[0]
+            state = list(transitions_possible)[0]
         if (state in self.accept_states):
             return True
 
