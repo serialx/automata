@@ -176,6 +176,13 @@ if __name__ == '__main__':
     print("= mDFA =")
     print(d)
     print("")
+    print("= Output (As per homework specs) =")
+    print("state = {{{0}}}".format(", ".join(str(x) for x in d.states)))
+    print("final_state = {{{0}}}".format(", ".join(str(x) for x in d.accept_states)))
+    print("start_state = {0}".format(d.start_state))
+    for ((s, c), d) in d.transition_function:
+        print("({0}, {1}, {2})".format(s, d, c))
+    print("")
     print("= Test =")
     while True:
         l = sys.stdin.readline().strip()
