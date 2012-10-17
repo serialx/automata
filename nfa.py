@@ -101,6 +101,7 @@ class NFA(object):
                         if state in self.accept_states:
                             accept_e_states.add(new_e_state)
 
+        return DFA(e_states, self.alphabet - {''}, e_trans.items(), start_e_state, accept_e_states)
         #print("e_states: {0}".format(e_states))
         #print("e_trans: {0}".format(e_trans))
         #print("start_e_state: {0}".format(start_e_state))
@@ -148,54 +149,31 @@ def test_simple_nfa():
     d = NFA(states, alphabet, transition_function, start_state, accept_states)
     print(d)
     print(d.to_dfa())
+    print(d.to_dfa().minimize())
     #print('"abc" in d = {0}'.format('abc' in d))
     #print('"acd" in d = {0}'.format('acd' in d))
 
 
-def test_dfa_with_cycle():
-    states = {'q1', 'q2', 'q3', 'q4'}
-    alphabet = {'abcde'}
-    transition_function = {
-            (('q1', 'a'), 'q2'),
-            (('q2', 'b'), 'q3'),
-            (('q3', 'a'), 'q2'),
-            (('q3', 'c'), 'q4'),
-            }
-    start_state = 'q1'
-    accept_states = {'q4'}
-    d = NFA(states, alphabet, transition_function, start_state, accept_states)
-    print(d)
-    print('"abc" in d = {0}'.format('abc' in d))
-    print('"abababc" in d = {0}'.format('abababc' in d))
-    print('"abbabc" in d = {0}'.format('abbabc' in d))
-    print('"acd" in d = {0}'.format('acd' in d))
-
-
-def test_nfa():
-    states = {'q1', 'q2', 'q3', 'q4'}
-    alphabet = {'abcde'}
-    transition_function = {
-            (('q1', 'a'), 'q2'),
-            (('q2', 'b'), 'q3'),
-            (('q2', 'b'), 'q4'),
-            (('q3', 'c'), 'q4'),
-            }
-    start_state = 'q1'
-    accept_states = {'q4'}
-    d = NFA(states, alphabet, transition_function, start_state, accept_states)
-    print(d)
-    print('"abc" in d = {0}'.format('abc' in d))
-    print('"acd" in d = {0}'.format('acd' in d))
-
-
 if __name__ == '__main__':
-    #test_simple_dfa()
-    test_simple_nfa()
-    #test_dfa_with_cycle()
-#    input = eval(open('input_dfa.txt').read())
-#    d = NFA(*input)
-#    print(d)
-#    while True:
-#        l = sys.stdin.readline().strip()
-#        print('"{0}" in DFA = {1}'.format(l, l in d))
-#
+    #test_simple_nfa()
+    input = eval(open('input_nfa.txt').read())
+    d = NFA(*input)
+    print("= NFA =")
+    print(d)
+    print("(+) Converting to DFA...")
+    d = d.to_dfa()
+    print("= DFA =")
+    print(d)
+    print("(+) Renaming states...")
+    d = d.rename()
+    print("= Renamed DFA =")
+    print(d)
+    print("(+) Computing mDFA...")
+    d = d.minimize().rename()
+    print("= mDFA =")
+    print(d)
+    print("= Test =")
+    while True:
+        l = sys.stdin.readline().strip()
+        print('"{0}" in DFA = {1}'.format(l, l in d))
+
