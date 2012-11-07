@@ -41,8 +41,8 @@ class QwertyHangulInput(object):
 
         transitions += [((Q, v), 'O') for v in u'ㅗ' for Q in 'KNRL']
         transitions += [((Q, v), 'U') for v in u'ㅜ' for Q in 'KNRL']
-        transitions += [((Q, v), 'A') for v in u'ㅏㅑㅓㅕ' for Q in 'KNRL']
-        transitions += [((Q, v), 'I') for v in u'ㅛㅠㅣ' for Q in 'KNRL']
+        transitions += [((Q, v), 'A') for v in u'ㅏㅑㅓㅕㅡ' for Q in 'KNRL']
+        transitions += [((Q, v), 'I') for v in u'ㅛㅠㅣㅐㅔㅒㅖ' for Q in 'KNRL']
         output_functions += [((Q, v), self.nucleus_with_output) for v in v_set for Q in 'KNRL']
 
         transitions += [(('K', c), 'L') for c in u'ㅅ']
