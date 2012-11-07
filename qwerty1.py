@@ -138,7 +138,7 @@ class QwertyHangulInput(object):
         self.input_chars_log.append(list(self.input_chars))
         split_table = {
                 u'ㄳ': (u'ㄱ', u'ㅅ'),
-                u'ㅄ': (u'ㄱ', u'ㅂ'),
+                u'ㅄ': (u'ㅂ', u'ㅅ'),
 
                 u'ㄵ': (u'ㄴ', u'ㅈ'),
                 u'ㄶ': (u'ㄴ', u'ㅎ'),
