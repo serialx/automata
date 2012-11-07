@@ -3,13 +3,14 @@ import hangul
 import mealy_machine
 import getch
 
+DELETE = '\x7f'
+
 class QwertyHangulInput(object):
     def __init__(self):
-        self.input_onset = u''  # Choseong
-        self.input_nucleus = u''  # Jungseong
-        self.input_coda = u''  # Jongseong
-        alphabets = 'qwertyuiopasdfghjklzxcvbnmQWERTOP'
-        alphabets_hangul = u'ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔㅁㄴㅇㄹㅎㅗㅓㅏㅣㅋㅌㅊㅍㅠㅜㅡㅃㅉㄸㄲㅆㅒㅖ'
+        self.input_chars_log = []
+        self.input_chars = [u'', u'', u'']
+        alphabets = 'qwertyuiopasdfghjklzxcvbnmQWERTOP' + DELETE
+        alphabets_hangul = u'ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔㅁㄴㅇㄹㅎㅗㅓㅏㅣㅋㅌㅊㅍㅠㅜㅡㅃㅉㄸㄲㅆㅒㅖ' + DELETE
         assert(len(alphabets) == len(alphabets_hangul))
         self.alphabet_trans = dict(zip(alphabets_hangul, alphabets))
         self.hangul_trans = dict(zip(alphabets, alphabets_hangul))
@@ -17,6 +18,12 @@ class QwertyHangulInput(object):
         output_functions = []
         c_set = u'ㅂㅈㄷㄱㅅㅁㄴㅇㄹㅎㅋㅌㅊㅍㅃㅉㄸㄲㅆ'
         v_set = u'ㅛㅕㅑㅐㅔㅗㅓㅏㅣㅠㅜㅡㅒㅖ'
+
+        # DELETE cases. Rolls back to previous state
+        # Just transition to self and rollback twice
+        transitions += [((Q, DELETE), Q) for Q in 'SVOUAIKNRL']
+        output_functions += [((Q, DELETE), self.delete) for Q in 'SVOUAIKNRL']
+
         transitions += [(('S', c), 'V') for c in c_set]
         output_functions += [(('S', c), self.onset) for c in c_set]
 
@@ -66,28 +73,44 @@ class QwertyHangulInput(object):
         self.machine = mealy_machine.MealyMachine('SVOUAIKNRL', alphabets, '', transitions, output_functions, 'S')
 
     def buf(self):
-        return hangul.join((self.input_onset, self.input_nucleus, self.input_coda))
+        return hangul.join(self.input_chars)
+
+    def delete(self, state, input_char):
+        print 'delete', self.input_chars_log
+        if (self.input_chars_log):
+            self.input_chars = self.input_chars_log.pop(-1)
+            print 'rollback'
+            self.machine.rollback()
+            self.machine.rollback()
+        return u''
+
+    def null(self, state, input_char):
+        return u''
 
     def onset(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         input_char = self.hangul_trans[input_char]
-        self.input_onset = input_char
+        self.input_chars[0] = input_char
         return u''
 
     def onset_with_output(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         print 'onset_with_output'
         input_char = self.hangul_trans[input_char]
         ret = self.buf()
-        self.input_onset = input_char
-        self.input_nucleus = u''
-        self.input_coda = u''
+        self.input_chars[0] = input_char
+        self.input_chars[1] = u''
+        self.input_chars[2] = u''
         return ret
 
     def nucleus(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         input_char = self.hangul_trans[input_char]
-        self.input_nucleus = input_char
+        self.input_chars[1] = input_char
         return u''
 
     def nucleus_combine(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         combine_table = {
                 (u'ㅗ', u'ㅏ'): u'ㅘ',
                 (u'ㅗ', u'ㅣ'): u'ㅚ',
@@ -104,14 +127,15 @@ class QwertyHangulInput(object):
                 (u'ㅡ', u'ㅣ'): u'ㅢ',
                 }
         input_char = self.hangul_trans[input_char]
-        key = (self.input_nucleus, input_char)
+        key = (self.input_chars[1], input_char)
         #if key not in combine_table:
         #    ret = self.buf() + input_char
-        #    self.input_nucleus = 
-        self.input_nucleus = combine_table[key]
+        #    self.input_chars[1] = 
+        self.input_chars[1] = combine_table[key]
         return u''
 
     def nucleus_with_output(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         split_table = {
                 u'ㄳ': (u'ㄱ', u'ㅅ'),
                 u'ㅄ': (u'ㄱ', u'ㅂ'),
@@ -128,25 +152,27 @@ class QwertyHangulInput(object):
                 u'ㅀ': (u'ㄹ', u'ㅎ'),
                 }
         input_char = self.hangul_trans[input_char]
-        if self.input_coda in split_table:
-            first, second = split_table[self.input_coda]
-            ret = hangul.join((self.input_onset, self.input_nucleus, first))
-            self.input_onset = second
-            self.input_nucleus = input_char
-            self.input_coda = u''
+        if self.input_chars[2] in split_table:
+            first, second = split_table[self.input_chars[2]]
+            ret = hangul.join((self.input_chars[0], self.input_chars[1], first))
+            self.input_chars[0] = second
+            self.input_chars[1] = input_char
+            self.input_chars[2] = u''
         else:
-            ret = hangul.join((self.input_onset, self.input_nucleus, u''))
-            self.input_onset = self.input_coda
-            self.input_nucleus = input_char
-            self.input_coda = u''
+            ret = hangul.join((self.input_chars[0], self.input_chars[1], u''))
+            self.input_chars[0] = self.input_chars[2]
+            self.input_chars[1] = input_char
+            self.input_chars[2] = u''
         return ret
 
     def coda(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         input_char = self.hangul_trans[input_char]
-        self.input_coda = input_char
+        self.input_chars[2] = input_char
         return u''
 
     def coda_combine(self, state, input_char):
+        self.input_chars_log.append(list(self.input_chars))
         combine_table = {
                 (u'ㄱ', u'ㅅ'): u'ㄳ',
                 (u'ㅂ', u'ㅅ'): u'ㅄ',
@@ -163,8 +189,8 @@ class QwertyHangulInput(object):
                 (u'ㄹ', u'ㅎ'): u'ㅀ',
                 }
         input_char = self.hangul_trans[input_char]
-        key = (self.input_coda, input_char)
-        self.input_coda = combine_table[key]
+        key = (self.input_chars[2], input_char)
+        self.input_chars[2] = combine_table[key]
         return u''
 
     def input(self, input_char):
@@ -181,7 +207,7 @@ def input_generator():
 
 def simulate(hangul_input):
     mealy_machine = hangul_input.machine
-    print('Loaded Mealy Machine:', mealy_machine)
+    print('Loaded Mealy Machine: {0}'.format(mealy_machine))
     l = input_generator()
     print('Simulating output...')
     for f in mealy_machine(l):

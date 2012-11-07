@@ -51,26 +51,35 @@ class MealyMachine(object):
 
     def __call__(self, string, verbose=True):
         output = []
-        state = self.start_state
+        self.state = self.start_state
+        self.state_log = [self.state]
         for c in string:
             output_possible = [func for ((cur_state, char), func) in
-                    self.output_function if cur_state == state and char == c]
+                    self.output_function if cur_state == self.state and char == c]
             if (verbose):
-                print(u"Output functions possible: ({0}, {1}) --> {2}".format(state, c, output_possible))
+                print(u"Output functions possible: ({0}, {1}) --> {2}".format(self.state, c, output_possible))
             assert len(output_possible) != 0, 'No output function exist'
             assert len(output_possible) == 1, 'More than one output function exists'
             output_char = output_possible[0]
             #assert(output_char in self.output_alphabet)
-            yield output_char(state, c)
             transitions_possible = [dest for ((start, char), dest) in
-                    self.transition_function if start == state and char == c]
+                    self.transition_function if start == self.state and char == c]
             if (verbose):
-                print(u"Transition functions possible: ({0}, {1}) --> {2}".format(state, c, transitions_possible))
+                print(u"Transition functions possible: ({0}, {1}) --> {2}".format(self.state, c, transitions_possible))
             if (len(transitions_possible) == 0):
                 return
             assert len(transitions_possible) == 1, ('Nondeterministic '
                     'behaviour not allowed in DFA')
-            state = transitions_possible[0]
+            self.state = transitions_possible[0]
+            self.state_log.append(self.state)
+            yield output_char(self.state, c)
+
+    def rollback(self):
+        # Rollback one state back
+        if (len(self.state_log) >= 2):
+            self.state_log.pop(-1)
+            self.state = self.state_log[-1]
+            print('State rolled back to {0}'.format(self.state))
 
     def simulate(self, string):
         funcs = self.__call__(string, verbose=False)
