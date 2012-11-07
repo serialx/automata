@@ -15,7 +15,7 @@ class QwertyHangulInput(object):
         self.hangul_trans = dict(zip(alphabets, alphabets_hangul))
         transitions = []
         output_functions = []
-        c_set = u'ㅂㅈㄷㄱㅅㅁㄴㅇㄹㅎㅋㅌㅊㅍ'
+        c_set = u'ㅂㅈㄷㄱㅅㅁㄴㅇㄹㅎㅋㅌㅊㅍㅃㅉㄸㄲㅆ'
         v_set = u'ㅛㅕㅑㅐㅔㅗㅓㅏㅣㅠㅜㅡㅒㅖ'
         transitions += [(('S', c), 'V') for c in c_set]
         output_functions += [(('S', c), self.onset) for c in c_set]
@@ -149,7 +149,7 @@ class QwertyHangulInput(object):
     def coda_combine(self, state, input_char):
         combine_table = {
                 (u'ㄱ', u'ㅅ'): u'ㄳ',
-                (u'ㄱ', u'ㅂ'): u'ㅄ',
+                (u'ㅂ', u'ㅅ'): u'ㅄ',
 
                 (u'ㄴ', u'ㅈ'): u'ㄵ',
                 (u'ㄴ', u'ㅎ'): u'ㄶ',
