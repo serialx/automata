@@ -56,16 +56,16 @@ class MealyMachine(object):
             output_possible = [func for ((cur_state, char), func) in
                     self.output_function if cur_state == state and char == c]
             if (verbose):
-                print("Output functions possible: ({0}, {1}) --> {2}".format(state, c, output_possible))
+                print(u"Output functions possible: ({0}, {1}) --> {2}".format(state, c, output_possible))
             assert len(output_possible) != 0, 'No output function exist'
             assert len(output_possible) == 1, 'More than one output function exists'
             output_char = output_possible[0]
-            assert(output_char in self.output_alphabet)
-            yield output_char
+            #assert(output_char in self.output_alphabet)
+            yield output_char(state, c)
             transitions_possible = [dest for ((start, char), dest) in
                     self.transition_function if start == state and char == c]
             if (verbose):
-                print("Transition functions possible: ({0}, {1}) --> {2}".format(state, c, transitions_possible))
+                print(u"Transition functions possible: ({0}, {1}) --> {2}".format(state, c, transitions_possible))
             if (len(transitions_possible) == 0):
                 return
             assert len(transitions_possible) == 1, ('Nondeterministic '
@@ -117,7 +117,7 @@ def simulate(mealy_machine):
     print('Loaded Mealy Machine:', mealy_machine)
     l = input_generator()
     print('Simulating output...')
-    for f in d(l):
+    for f in mealy_machine(l):
         f()
 
 
