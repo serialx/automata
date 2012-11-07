@@ -211,7 +211,7 @@ def input_generator():
 
 def simulate(hangul_input):
     mealy_machine = hangul_input.machine
-    print('Loaded Mealy Machine: {0}'.format(mealy_machine))
+    print('Loaded Mealy Machine')
     l = input_generator()
     print('Simulating output...')
     for f in mealy_machine(l):

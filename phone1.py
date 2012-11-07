@@ -7,6 +7,10 @@ import getch
 DELETE = '\x7f'
 
 class ThreeFourHangulInput(object):
+    """
+    Handol Code Input Method
+    http://www.hdcode.com/
+    """
     def __init__(self):
         self.input_chars_log = []
         self.input_chars = [u'', u'', u'']
@@ -273,7 +277,7 @@ def input_generator():
 
 def simulate(hangul_input):
     mealy_machine = hangul_input.machine
-    print('Loaded Mealy Machine: {0}'.format(mealy_machine))
+    print('Loaded Mealy Machine')
     l = input_generator()
     print('Simulating output...')
     for f in mealy_machine(l):
