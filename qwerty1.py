@@ -45,7 +45,10 @@ class QwertyHangulInput(object):
         transitions += [((Q, c), 'N') for c in u'ㄴ' for Q in 'OUAI']
         transitions += [((Q, c), 'R') for c in u'ㄹ' for Q in 'OUAI']
         transitions += [((Q, c), 'L') for c in u'ㄷㅁㅅㅇㅈㅊㅋㅌㅍㅎㄲㅆ' for Q in 'OUAI']
-        output_functions += [((Q, c), self.coda) for c in c_set for Q in 'OUAI']
+        output_functions += [((Q, c), self.coda) for c in set(c_set) - set(u'ㄸㅃㅉ') for Q in 'OUAI']
+
+        transitions += [((Q, c), 'V') for c in u'ㄸㅃㅉ' for Q in 'OUAI']
+        output_functions += [((Q, c), self.onset_with_output) for c in u'ㄸㅃㅉ' for Q in 'OUAI']
 
         transitions += [((Q, v), 'O') for v in u'ㅗ' for Q in 'KNRL']
         transitions += [((Q, v), 'U') for v in u'ㅜ' for Q in 'KNRL']
