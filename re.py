@@ -143,10 +143,23 @@ class Concat(Expression):
         trans = left[2] + [((left_end, ''), right_start)] + right[2]
         return (states, alphabet, trans, left_start, [right_end])
 
+class Empty(Expression):
+    def __init__(self):
+        pass
+    def __repr__(self):
+        return "Empty"
+    def nfa(self):
+        a = get_new_symbol()
+        b = get_new_symbol()
+        states = [a, b]
+        alphabet = set()
+        trans = []
+        return (states, alphabet, trans, a, [b])
+
 class Calc(Parser):
 
     tokens = (
-        'CHAR', 'PLUS', 'STAR', 'LPAREN','RPAREN',
+        'EMPTY', 'EPSILON', 'CHAR', 'PLUS', 'STAR', 'LPAREN', 'RPAREN',
         )
 
     # Tokens
@@ -156,6 +169,8 @@ class Calc(Parser):
     t_STAR    = r'\*'
     t_LPAREN  = r'\('
     t_RPAREN  = r'\)'
+    t_EPSILON = r'\'\''
+    t_EMPTY   = r'\{\}'
 
     t_ignore = " \t"
 
@@ -212,6 +227,14 @@ class Calc(Parser):
         'expression : CHAR'
         p[0] = Symbol([p[1]])
 
+    def p_expression_epsilon(self, p):
+        'expression : EPSILON'
+        p[0] = Symbol([''])
+
+    def p_expression_empty(self, p):
+        'expression : EMPTY'
+        p[0] = Empty()
+
     def p_error(self, p):
         if p:
             print("Syntax error at '%s'" % p.value)
@@ -219,5 +242,5 @@ class Calc(Parser):
             print("Syntax error at EOF")
 
 if __name__ == '__main__':
-    calc = Calc(debug=1)
+    calc = Calc(debug=0)
     calc.run()
