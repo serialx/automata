@@ -41,8 +41,12 @@ class NFA(object):
         assert start_state in states
         self.accept_states = set(accept_states)
         assert self.states.issuperset(accept_states)
-        trans_dict = defaultdict(lambda: defaultdict(set))
+        trans_dict = dict()  #defaultdict(lambda: defaultdict(set))
         for ((q1, c), r2) in self.transition_function:
+            if q1 not in trans_dict:
+                trans_dict[q1] = dict()
+            if c not in trans_dict[q1]:
+                trans_dict[q1][c] = set()
             trans_dict[q1][c].add(r2)
         self.trans_dict = trans_dict
 
@@ -59,7 +63,8 @@ class NFA(object):
     def transitions(self, states, c):
         target_states = set()
         for state in states:
-            target_states |= self.trans_dict[state][c]
+            if state in self.trans_dict and c in self.trans_dict[state]:
+                target_states |= self.trans_dict[state][c]
         return frozenset(target_states)
 
     def epsilon_closure(self, states, visited_states=None):
@@ -70,7 +75,8 @@ class NFA(object):
 
         target_states = set()
         for state in states:
-            target_states |= self.trans_dict[state]['']
+            if state in self.trans_dict and '' in self.trans_dict[state]:
+                target_states |= self.trans_dict[state]['']
         new_states = target_states - visited_states
         visited_states = set(visited_states)  # Copy
         for new_state in new_states:
@@ -92,7 +98,9 @@ class NFA(object):
             e_states.append(e_state)
             for c in self.alphabet:
                 if len(c) == 0: continue
-                new_e_state = self.epsilon_closure(self.transitions(e_state, c))
+                target_states = self.transitions(e_state, c)
+                if not target_states: continue
+                new_e_state = self.epsilon_closure(target_states)
                 #print("{0}, {1} -> {2}".format(e_state, c, new_e_state))
                 e_trans[(e_state, c)] = new_e_state
                 if (new_e_state not in e_states) and (new_e_state not in new_e_states):
