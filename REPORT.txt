@@ -1,76 +1,61 @@
-Automata Project 1: Report (결과보고서)
+Automata Project 2: Report (결과보고서)
 =======================================
 
 Name: 홍성진 (20060735, serialx@serialx.net)
 
-Mealy Machine의 수정
---------------------
-한글 조합을 하려면 Mealy Machine에 입력된 함수블록들이 현재 state와 input character를 알아야하기 때문에 이를 지원하기 위하여 함수블록들을 state와 input character를 받는 함수라고 가정하고 구조를 약간 변형하였습니다. 또한 Delete지원을 위한 state log관리 및 rollback기능도 구현하였습니다.
-
-Delete 기능
------------
-Delete를 지원하기 위해서 Mealy Machine이 상태변화를 할 때마다 state를 stack에 저장하였습니다. Fallback이라는 이름의 method를 호출하면 이전 state로 rollback하는 형태로 구현하였습니다. 또한 이와 함게 초중종성 입력 버퍼도 복귀하여야 하므로 Mealy Machine에서 사용되는 function들의 버퍼도 변화시마다 기록하여 같이 rollback할 수 있도록 구현하였습니다.
-
-Buffer & Output
+DFA, NFA의 수정
 ---------------
-구현에서 입력기가 현재 작업중인 글자를 Buffer라 칭하고 완성된 글자를 출력하는 것을 Output이라 칭했습니다. 초성우선 입력기의 경우 Buffer의 길이가 2글자입니다.
+Regular Expression을 구현하면서 NFA to DFA, DFA Minimization알고리즘에 버그들이 발견되어 모두 수정하였습니다. 기본 아키텍처는 변함이 없습니다.
 
-2벌식 한글 입력기 (받침우선)
-----------------------------
-기본적으로 최광무 교수님 논문의 오토마타 설계를 바탕으로 현대 키보드에 맞추어 (ㅐㅔ) 등을 추가한 variant를 제작하였습니다. 오토마타에 맞지 않는 경우 종료하며 Delete키를 지원합니다.
-
-2벌식 한글 입력기 (초성우선)
-----------------------------
-초성우선 입력기의 경우 오토마타는 변화되지 않고 Mealy Machine에 주어지는 함수만 변형하여 초성우선을 만들었습니다.
-
-한돌코드 입력기
----------------
-한돌코드 입력기[1] 를 참고하여 제작하였습니다. 한돌코드 입력기는 '글자끝'키가 있고 종성입력이 별도 상태로 구분되기 때문에 받침우선, 초성우선이라는 개념이 존재하지 않습니다. 하지만 우선 기본인 받침우선을 제작하였고 조합 함수를 바꿔 초성우선도 같이 제작하였습니다.
-
-[1] http://ko.wikipedia.org/wiki/%ED%9C%B4%EB%8C%80_%EC%A0%84%ED%99%94_%EB%AC%B8%EC%9E%90_%EC%9E%85%EB%A0%A5_%EB%B0%A9%EC%8B%9D#Microsoft_.EC.9C.88.EB.8F.847_:_.ED.95.9C.EB.8F.8C.EC.BD.94.EB.93.9C
+PLY (Python Lex Yacc)
+---------------------
+순수하게 파이썬으로 구현 된 Lex, Yacc입니다. 코드 안에 주석으로 문법을 정의하면 LR파서로 파싱처리됩니다.
 
 Exmaples
 --------
 
-### 2벌식 받침우선 입력기
-
 ```
-$ python qwerty1.py
-Loaded Mealy Machine
-Simulating output...
-Output functions possible: (S, q) --> [<bound method QwertyHangulInput.onset of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (S, q) --> ['V']
-buf: ㅂ
-output: 
-Output functions possible: (V, n) --> [<bound method QwertyHangulInput.nucleus of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (V, n) --> ['U']
-buf: 부
-output: 
-Output functions possible: (U, p) --> [<bound method QwertyHangulInput.nucleus_combine of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (U, p) --> ['I']
-buf: 붸
-output: 
-Output functions possible: (I, f) --> [<bound method QwertyHangulInput.coda of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (I, f) --> ['R']
-buf: 뷀
-output: 
-Output functions possible: (R, r) --> [<bound method QwertyHangulInput.coda_combine of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (R, r) --> ['L']
-buf: 뷁
-output: 
-Output functions possible: (L, g) --> [<bound method QwertyHangulInput.onset_with_output of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (L, g) --> ['V']
-onset_with_output
-buf: ㅎ
-output: 뷁
-Output functions possible: (V, k) --> [<bound method QwertyHangulInput.nucleus of <__main__.QwertyHangulInput object at 0x108e2e850>>]
-Transition functions possible: (V, k) --> ['A']
-buf: 하
-output: 
+$ python re.py 
+re > (0+'')1*+{}
+Or(Concat(Or(('0'),('')),Production(('1'))),Empty)
+([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], set(['', '0', '1']), [((13, ''), 5), ((13, ''), 11), ((5, ''), 1), ((5, ''), 3), ((1, '0'), 2), ((3, ''), 4), ((2, ''), 6), ((4, ''), 6), ((6, ''), 9), ((9, ''), 7), ((8, ''), 10), ((9, ''), 10), ((8, ''), 7), ((7, '1'), 8), ((10, ''), 14), ((12, ''), 14)], 13, [14])
+NFA(states=set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]), 
+    alphabet=set(['', '0', '1']), 
+    transition_function=set([((5, ''), 3), ((9, ''), 7), ((4, ''), 6), ((1, '0'), 2), ((8, ''), 7), ((7, '1'), 8), ((8, ''), 10), ((9, ''), 10), ((13, ''), 11), ((10, ''), 14), ((13, ''), 5), ((6, ''), 9), ((2, ''), 6), ((5, ''), 1), ((12, ''), 14), ((3, ''), 4)]), 
+    start_state=13, 
+    accept_state=set([14]))
+DFA(states=set([1, 2, 3]), 
+    alphabet=set(['1', '0']), 
+    transition_function=set([((3, '1'), 3), ((2, '1'), 3), ((1, '1'), 3), ((2, '0'), 1)]), 
+    start_state=2, 
+    accept_state=set([1, 2, 3]))
+reachable_states = set([1, 2, 3])
+equivalent_state_pairs = set([])
+DFA(states=set([1, 2, 3]), 
+    alphabet=set(['1', '0']), 
+    transition_function=set([((2, '1'), 2), ((1, '0'), 3), ((3, '1'), 2), ((1, '1'), 2)]), 
+    start_state=1, 
+    accept_state=set([1, 2, 3]))
+ 
+"" in DFA = True
+0
+(1, 0) --> set([3])
+"0" in DFA = True
+1
+(1, 1) --> set([2])
+"1" in DFA = True
+01
+(1, 0) --> set([3])
+(3, 1) --> set([2])
+"01" in DFA = True
+10
+(1, 1) --> set([2])
+(2, 0) --> set([])
+"10" in DFA = False
 ```
 
 Retrospect
 ----------
-한돌코드의 경우 글자끝을 사용하여 초성우선, 받침우선의 개념이 필요가 없어서 인상깊었습니다. 그 외 오토마타를 구현하면서 한돌코드의 키보드 배치에 대한 깊은 뜻을 알 수 있었는데 흥미로웠습니다. 나중에 기회가 된다면 세벌식 입력기도 구현하면 좋을 것 같습니다.
+Lex, Yacc으로 생성된 AST에서 e-NFA를 만들고 이를 DFA변환기, Minimizing 알고리즘을 통화시키는 과정에서 기존 코드에 수많은 버그를 발견할 수 있었습니다. 작동하는 모습을 보니 정말 신기하고 많은 배움을 얻을 수 있었습니다.
 
 조교님들 수고 많으십니다. 감사합니다.
