@@ -76,6 +76,8 @@ class DFA(object):
 
     def _distinguishable(self, table, a, b, visited=None):
         #print "distinguishable", a, b, visited
+        if a == b:
+            return False
         if table[a][b] or table[b][a]:
             return True
         if a in self.accept_states and b not in self.accept_states:
@@ -102,12 +104,12 @@ class DFA(object):
                 return True
             else:
                 bt = copy.copy(bts).pop()
-            if at == bt:
-                return False
+            #if at == bt:
+            #    return False
             if visited == None:
                 visited = set()
             if (at, bt) in visited:
-                return False
+                continue
             visited.add((a, b))
             if self._distinguishable(table, at, bt, set(visited)):
                 #print True
@@ -117,6 +119,7 @@ class DFA(object):
             else:
                 pass
                 #print False
+        return False
 
 
     def minimize(self):
