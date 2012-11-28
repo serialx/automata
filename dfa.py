@@ -18,6 +18,7 @@
 """
 
 import sys
+import copy
 from collections import defaultdict
 
 
@@ -87,8 +88,20 @@ class DFA(object):
             return True
         for c in self.alphabet:
             #print c
-            at, = self.transitions(a, c)
-            bt, = self.transitions(b, c)
+            ats = self.transitions(a, c)
+            if not ats:  # Dead state
+                table[a][b] = True
+                table[b][a] = True
+                return True
+            else:
+                at = copy.copy(ats).pop()
+            bts = self.transitions(b, c)
+            if not bts:  # Dead state
+                table[a][b] = True
+                table[b][a] = True
+                return True
+            else:
+                bt = copy.copy(bts).pop()
             if at == bt:
                 return False
             if visited == None:
@@ -150,9 +163,11 @@ class DFA(object):
         if self.start_state in merging_state:
             new_start_state = merging_state[self.start_state]
         else:
-            new_start_state = self.start_state
+            new_start_state = frozenset([self.start_state])
 
         # Create new DFA
+        reachable_states = set(frozenset([x]) for x in reachable_states)
+        states_to_remove = set(frozenset([x]) for x in states_to_remove)
         new_states = (reachable_states - states_to_remove) | set(frozenset(x) for x in merging_state.values())
         new_trans = set()
         new_accept_states = set()
@@ -167,8 +182,12 @@ class DFA(object):
         for ((s, c), d) in self.transition_function:
             if s in merging_state:
                 s = merging_state[s]
+            else:
+                s = frozenset([s])
             if d in merging_state:
                 d = merging_state[d]
+            else:
+                d = frozenset([d])
             new_trans.add(((s, c), d))
         #print "new_states =", new_states
         #print "new_trans =", new_trans
