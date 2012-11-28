@@ -93,6 +93,11 @@ class NFA(object):
         #print("start_e_state: {0}".format(start_e_state))
         new_e_states.append(start_e_state)
 
+        # Start state can be also accept state
+        for state in start_e_state:
+            if state in self.accept_states:
+                accept_e_states.add(start_e_state)
+
         while new_e_states:
             e_state = new_e_states.pop(0)
             e_states.append(e_state)
